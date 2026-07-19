@@ -1,0 +1,42 @@
+# -------------------------
+
+# Obsidian
+
+# -------------------------
+
+# Ignore workspace-specific settings
+
+.obsidian/workspace.json
+
+# Ignore cache
+
+.obsidian/cache/
+
+# Ignore trash
+
+.obsidian/trash/
+
+# Ignore sync metadata (if present)
+
+.obsidian/sync.json
+
+# Ignore operating system files
+
+.DS_Store
+Thumbs.db
+
+# Ignore editor settings
+
+.vscode/
+.idea/
+
+# Ignore temporary files
+
+*.tmp
+*.swp
+*.swo
+*~
+
+# Uncomment if you DON'T want to track any Obsidian configuration
+
+.obsidian/
