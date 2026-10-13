@@ -131,6 +131,112 @@ Clicking Increment, Decrement, or Reset re-renders `UseMemoComponent`, which als
 
 > **Note:** With the React Compiler enabled, much of this manual memoization is handled automatically.
 
+# Edge Case: React.memo with Object Props (solved with useMemo)
+
+`React.memo` only skips a re-render when its props are equal. Props are compared by **reference** (shallow comparison with `Object.is`), not by value.
+
+### The Problem
+
+When you pass an object as a prop to a `React.memo` child, you might expect the child to skip re-renders. It doesn't:
+
+- Every time the parent re-renders, `{ name: "John Doe", age: 30 }` is created again as a **new object in memory**.
+- `React.memo` compares the old and new `user` references. They point to different objects, so React treats the prop as changed.
+- The child re-renders even though the contents are identical, so `memo` is wasted.
+
+```tsx
+// Problem: new object reference on every parent render
+const user = { name: "John Doe", age: 30 };
+
+<MemoChildWithObject user={user} />;
+```
+
+### The Solution: useMemo
+
+`useMemo` keeps the same object reference between renders as long as its dependencies don't change. With `[]`, the object is created once and reused. `React.memo` then sees the same reference and skips the child's render.
+
+|                                      | Without `useMemo` | With `useMemo`  |
+| ------------------------------------ | ----------------- | --------------- |
+| Object reference on parent re-render | New every time    | Same every time |
+| `React.memo` comparison              | Props changed     | Props unchanged |
+| Child re-renders on `count` change   | Yes               | No              |
+
+### Example
+
+```tsx
+// MemoParent
+
+import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { MemoChild } from "@/components/memo/react-memo/memo-child";
+import { MemoChildWithObject } from "@/components/memo/react-memo/memo-child-with-object";
+
+export const MemoParent = () => {
+  const [count, setCount] = useState(0);
+
+  // Same reference on every render, so memo can skip the child
+  const user = useMemo(() => {
+    return { name: "John Doe", age: 30 };
+  }, []);
+
+  return (
+    <div className="space-y-4 rounded-lg border border-border bg-background p-6 text-foreground">
+      <h1>React Memo Example</h1>
+      <p className="text-2xl font-semibold">Counter: {count}</p>
+
+      <div className="flex gap-2">
+        <Button onClick={() => setCount((c) => c + 1)}>Increment</Button>
+        <Button variant="outline" onClick={() => setCount((c) => c - 1)}>
+          Decrement
+        </Button>
+        <Button variant="destructive" onClick={() => setCount(0)}>
+          Reset
+        </Button>
+      </div>
+
+      <div className="rounded-md border border-border bg-muted p-4">
+        <MemoChild />
+      </div>
+
+      <div className="rounded-md border border-border bg-muted p-4">
+        <MemoChildWithObject user={user} />
+      </div>
+    </div>
+  );
+};
+```
+
+```tsx
+// MemoChildWithObject
+
+import { memo, useRef } from "react";
+
+export const MemoChildWithObject = memo(
+  ({ user }: { user: { name: string; age: number } }) => {
+    const renderCount = useRef(0);
+    renderCount.current++;
+
+    return (
+      <div>
+        <h1>Memo Child With Object Prop</h1>
+        <p>Name: {user.name}</p>
+        <p>Age: {user.age}</p>
+
+        <p>Render count: {renderCount.current}</p>
+      </div>
+    );
+  },
+);
+```
+
+Click Increment or Decrement and watch "Render count". It stays the same because `user` keeps the same reference. To see the problem, replace the `useMemo` with a plain `const user = { ... }` and the count goes up on every click.
+
+> **Note:** The same issue applies to arrays and functions passed as props. Use `useMemo` for objects and arrays, and `useCallback` for functions. With the React Compiler enabled, this is handled automatically.
+
+### Small things to know
+
+- **Static objects:** If the object never depends on props or state, you can define it **outside the component** instead. It's created once at module level, so no `useMemo` is needed.
+- **Mutating a ref during render:** `renderCount.current++` in the render body is fine for a demo, but it's an impure render. In development with `StrictMode`, React may render components twice, so the count can look higher than expected. It's only meant for demos, not production logic.
+
 # React Compiler
 
 > **Note:** If the React Compiler is enabled in your project, you don't need `React.memo`, `useMemo`, or `useCallback` in most cases.
