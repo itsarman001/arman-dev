@@ -1,18 +1,29 @@
-# React.memo
+# Memoization in React: React.memo, useMemo & useCallback
 
-is a higher-order component (HOC) used to optimize performance by preventing a functional component from re-rendering if its props have not changed
+## Contents
 
-## How It Works
+1. useMemo
+2. Edge Case: React.memo with Object
+3. useCallback
+4. React Compiler
 
-• Skipping Re-renders: Normally, when a parent component re-renders, all of its child components re-render as well—even if the child's own data has not changed.
-• Shallow Comparison: Wrapping a component with React.memo(Component) tells React to compare the new props with the previous props using a shallow comparison (Object.is).
-• Caching Output: If the props are equal, React skips rendering the component and reuses its previously cached output.
+---
 
-## When to Use It
+## React.memo
 
-• Heavy Components: When a component performs expensive rendering logic or large UI trees (like big tables or complex lists).
-• Frequent Parent Updates: When a parent component re-renders often, but the child component consistently receives the exact same props.
-• Pure Presentation: When a component is "pure" (meaning its output depends only on its props).
+`React.memo` is a higher-order component (HOC) used to optimize performance by preventing a functional component from re-rendering if its props have not changed.
+
+### How It Works
+
+- **Skipping Re-renders:** Normally, when a parent component re-renders, all of its child components re-render as well—even if the child's own data has not changed.
+- **Shallow Comparison:** Wrapping a component with `React.memo(Component)` tells React to compare the new props with the previous props using a shallow comparison (`Object.is`).
+- **Caching Output:** If the props are equal, React skips rendering the component and reuses its previously cached output.
+
+### When to Use It
+
+- **Heavy Components:** When a component performs expensive rendering logic or large UI trees (like big tables or complex lists).
+- **Frequent Parent Updates:** When a parent component re-renders often, but the child component consistently receives the exact same props.
+- **Pure Presentation:** When a component is "pure" (meaning its output depends only on its props).
 
 ### Example
 
@@ -50,23 +61,25 @@ export default memo(MemoChild);
 
 > **Note:** With the React Compiler enabled, much of this manual memoization is handled automatically.
 
-# useMemo
+---
+
+## useMemo
 
 `useMemo` is a React Hook used to optimize performance by caching the result of an expensive calculation between re-renders, so it only recomputes when its dependencies change.
 
-## How It Works
+### How It Works
 
 - **Caching a Value:** On the first render, React runs your function and stores the returned value.
 - **Dependency Comparison:** On later renders, React compares each dependency with its previous value using `Object.is`.
 - **Reusing the Result:** If no dependency changed, React returns the cached value and skips the function. If one changed, it recomputes and caches the new result.
 
-## When to Use It
+### When to Use It
 
 - **Expensive Calculations:** Heavy loops, filtering or sorting large lists, or parsing large data.
 - **Unrelated State Updates:** When the component re-renders often because of other state (like a counter), but the calculation's inputs rarely change.
 - **Stable References:** When passing objects or arrays to a `React.memo` child, or using them in `useEffect`/`useCallback` dependency arrays.
 
-## When NOT to Use It
+### When NOT to Use It
 
 - **Cheap Calculations:** Simple math, string concatenation, or small array operations. The memoization overhead can cost more than the work it saves.
 - **Memoizing Everything by Default:** It adds complexity and memory use with no measurable gain. Profile first, then optimize.
@@ -131,7 +144,9 @@ Clicking Increment, Decrement, or Reset re-renders `UseMemoComponent`, which als
 
 > **Note:** With the React Compiler enabled, much of this manual memoization is handled automatically.
 
-# Edge Case: React.memo with Object Props (solved with useMemo)
+---
+
+## Edge Case: React.memo with Object Props (solved with useMemo)
 
 `React.memo` only skips a re-render when its props are equal. Props are compared by **reference** (shallow comparison with `Object.is`), not by value.
 
@@ -237,7 +252,122 @@ Click Increment or Decrement and watch "Render count". It stays the same because
 - **Static objects:** If the object never depends on props or state, you can define it **outside the component** instead. It's created once at module level, so no `useMemo` is needed.
 - **Mutating a ref during render:** `renderCount.current++` in the render body is fine for a demo, but it's an impure render. In development with `StrictMode`, React may render components twice, so the count can look higher than expected. It's only meant for demos, not production logic.
 
-# React Compiler
+---
+
+## useCallback
+
+`useCallback` is a React Hook that caches a **function definition** between re-renders, so the function keeps the same reference until its dependencies change.
+
+### How It Works
+
+- **Caching a Function:** On the first render, React stores the function you pass in.
+- **Dependency Comparison:** On later renders, React compares each dependency with its previous value using `Object.is`.
+- **Reusing the Reference:** If no dependency changed, React returns the same function reference. If one changed, it returns the new function and caches it.
+- **Same as useMemo:** `useCallback(fn, deps)` is equivalent to `useMemo(() => fn, deps)`.
+
+### The Problem
+
+In JavaScript, functions are objects. Every time a component re-renders, any function defined inside it is **created again with a new reference**. So when you pass it as a prop to a `React.memo` child:
+
+- `React.memo` compares the old and new `onClick` references.
+- They are different, so React treats the prop as changed.
+- The child re-renders even though the function does exactly the same thing.
+
+```tsx
+// Problem: new function reference on every parent render
+const increment = () => setCount((prev) => prev + 1);
+
+<Button onClick={increment}>Increment</Button>;
+```
+
+### When to Use It
+
+- **Functions Passed to Memoized Children:** When the child is wrapped in `React.memo`, `useCallback` keeps the prop stable so the child can skip renders.
+- **Hook Dependencies:** When a function is used in the dependency array of `useEffect`, `useMemo`, or another `useCallback`.
+- **Custom Hooks:** When a hook returns functions, caching them lets consumers use them safely in their own dependency arrays.
+
+### When NOT to Use It
+
+- **Child Is Not Memoized:** If the child isn't wrapped in `React.memo`, it re-renders with the parent anyway, so `useCallback` gives no benefit.
+- **Native Elements:** Passing a handler to `<button>` or `<div>` doesn't need it. Nothing is skipped.
+- **Wrapping Every Function by Default:** It adds complexity and memory cost. Profile first, then optimize.
+- **Unstable Dependencies:** If a dependency changes every render, the cached function is recreated every time.
+
+### Example
+
+```tsx
+import { useState, useCallback } from "react";
+import { UseCallbackButton as Button } from "@/components/memo/use-callback-button";
+
+export const UseCallback = () => {
+  const [count, setCount] = useState(0);
+
+  // Same reference on every render, so the memoized buttons can skip re-rendering
+  const increment = useCallback(() => {
+    console.log("Incrementing count inside useCallback");
+    setCount((prev) => prev + 1);
+  }, []);
+
+  const decrement = useCallback(() => {
+    console.log("Decrementing count inside useCallback");
+    setCount((prev) => prev - 1);
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">useCallback</h1>
+      <p className="text-sm">Count: {count}</p>
+      <div className="flex gap-2">
+        <Button onClick={increment}>Increment</Button>
+        <Button onClick={decrement}>Decrement</Button>
+      </div>
+    </div>
+  );
+};
+```
+
+```tsx
+import { memo, type ReactNode } from "react";
+
+type Props = { onClick: () => void; children: ReactNode };
+
+export const UseCallbackButton = memo(({ onClick, children }: Props) => {
+  console.log(`Rendering UseCallbackButton: ${children}`);
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+    >
+      {children}
+    </button>
+  );
+});
+```
+
+Click Increment or Decrement and check the console. "Rendering UseCallbackButton" prints only twice (once per button on the first render), not on every click. Only the `UseCallback` parent re-renders to update the count.
+
+### Why `setCount((prev) => prev + 1)` matters
+
+The dependency array is empty (`[]`), so the function is never recreated. That works only because you use the **functional update form** (`prev => prev + 1`). If you wrote `setCount(count + 1)`, the function would capture the first `count` (0) forever (a stale closure), and the counter would get stuck at 1. Either use the functional form or add `count` to the dependencies.
+
+### Comparison: useMemo vs useCallback
+
+|             | `useMemo`                                     | `useCallback`                                     |
+| ----------- | --------------------------------------------- | ------------------------------------------------- |
+| Caches      | The **result** of calling a function          | The **function itself**                           |
+| Returns     | A value (object, array, number)               | A function                                        |
+| Typical use | Expensive calculations, stable objects/arrays | Stable event handlers passed to memoized children |
+
+> **Note:** With the React Compiler enabled, this memoization is handled automatically in most cases, so you rarely need to write `useCallback` yourself.
+
+### Small things to know
+
+- **Without `memo`, it does nothing:** Remove `memo` from `UseCallbackButton` and both buttons re-render on every click, even with `useCallback`. The two work as a pair.
+- **To see the problem:** Replace `useCallback` with plain arrow functions and the console logs "Rendering UseCallbackButton" for both buttons on every click.
+
+---
+
+## React Compiler
 
 > **Note:** If the React Compiler is enabled in your project, you don't need `React.memo`, `useMemo`, or `useCallback` in most cases.
 
