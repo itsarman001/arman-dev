@@ -247,7 +247,7 @@ Click Increment or Decrement and watch "Render count". It stays the same because
 
 > **Note:** The same issue applies to arrays and functions passed as props. Use `useMemo` for objects and arrays, and `useCallback` for functions. With the React Compiler enabled, this is handled automatically.
 
-### Small things to know
+### Gotchas
 
 - **Static objects:** If the object never depends on props or state, you can define it **outside the component** instead. It's created once at module level, so no `useMemo` is needed.
 - **Mutating a ref during render:** `renderCount.current++` in the render body is fine for a demo, but it's an impure render. In development with `StrictMode`, React may render components twice, so the count can look higher than expected. It's only meant for demos, not production logic.
@@ -360,7 +360,7 @@ The dependency array is empty (`[]`), so the function is never recreated. That w
 
 > **Note:** With the React Compiler enabled, this memoization is handled automatically in most cases, so you rarely need to write `useCallback` yourself.
 
-### Small things to know
+### Gotchas
 
 - **Without `memo`, it does nothing:** Remove `memo` from `UseCallbackButton` and both buttons re-render on every click, even with `useCallback`. The two work as a pair.
 - **To see the problem:** Replace `useCallback` with plain arrow functions and the console logs "Rendering UseCallbackButton" for both buttons on every click.

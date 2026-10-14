@@ -64,7 +64,7 @@ Each `<Input label="..." />` gets its own ID, so clicking a label focuses the co
 
 > **Note:** `useId` should not be used as a `key` in a loop.
 
-### Small things to know
+### Gotchas
 
 - **Hook is called unconditionally:** `useId()` runs on every render, and `id ?? generatedId` picks which one to use afterwards. This is correct, since hooks can't be called conditionally.
 - **Multiple related IDs:** Call `useId` once and add suffixes, for example `` `${generatedId}-error` `` for an error message element, instead of calling the hook several times.
