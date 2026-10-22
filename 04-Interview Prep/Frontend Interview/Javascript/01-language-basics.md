@@ -28,7 +28,7 @@ A **variable** is a named binding to a value in memory. JavaScript has three dec
 
 ### Summary
 
-||`var`|`let`|`const`|
+| |`var`|`let`|`const`|
 |---|---|---|---|
 |Scope|Function|Block|Block|
 |Reassign|Yes|Yes|No|
@@ -68,7 +68,8 @@ user = {};            // TypeError: Assignment to constant variable
 - **Loop closure bug**
     
     ```js
-    for (var i = 0; i < 3; i++) setTimeout(() => console.log(i)); // 3 3 3for (let i = 0; i < 3; i++) setTimeout(() => console.log(i)); // 0 1 2
+    for (var i = 0; i < 3; i++) setTimeout(() => console.log(i));
+    // 3 3 3for (let i = 0; i < 3; i++) setTimeout(() => console.log(i)); // 0 1 2
     ```
     
     `var` shares one binding; `let` creates a fresh binding per iteration.
@@ -95,16 +96,16 @@ JavaScript is **dynamically typed**: variables have no fixed type; values do. Th
 
 ### Summary
 
-|Type|Example|`typeof`|
-|---|---|---|
-|string|`"hi"`|`"string"`|
-|number|`42`, `3.14`, `NaN`, `Infinity`|`"number"`|
-|boolean|`true`|`"boolean"`|
-|undefined|`let x;`|`"undefined"`|
-|null|`null`|`"object"` (historical bug)|
-|bigint|`10n`|`"bigint"`|
-|symbol|`Symbol("id")`|`"symbol"`|
-|object|`{}`, `[]`, `new Date()`, functions|`"object"` / `"function"`|
+| Type      | Example                             | `typeof`                    |
+| --------- | ----------------------------------- | --------------------------- |
+| string    | `"hi"`                              | `"string"`                  |
+| number    | `42`, `3.14`, `NaN`, `Infinity`     | `"number"`                  |
+| boolean   | `true`                              | `"boolean"`                 |
+| undefined | `let x;`                            | `"undefined"`               |
+| null      | `null`                              | `"object"` (historical bug) |
+| bigint    | `10n`                               | `"bigint"`                  |
+| symbol    | `Symbol("id")`                      | `"symbol"`                  |
+| object    | `{}`, `[]`, `new Date()`, functions | `"object"` / `"function"`   |
 
 | |`null`|`undefined`|
 |---|---|---|
@@ -152,14 +153,14 @@ Operators perform operations on operands (values). Categories: arithmetic, compa
 
 ### Summary
 
-|Category|Operators|
-|---|---|
-|Arithmetic|`+ - * / % **` `++ --`|
-|Comparison|`== != === !== < > <= >=`|
-|Logical|`&& \| !`|
-|Nullish / optional|`??` `?.`|
-|Assignment|`= += -= *= /= \|= &&= ??=`|
-|Other|`?:` (ternary), `typeof`, `in`, `instanceof`, `delete`, `...`|
+| Category           | Operators                                                     |
+| ------------------ | ------------------------------------------------------------- |
+| Arithmetic         | `+ - * / % **` `++ --`                                        |
+| Comparison         | `== != === !== < > <= >=`                                     |
+| Logical            | `&& \| !`                                                     |
+| Nullish / optional | `??` `?.`                                                     |
+| Assignment         | `= += -= *= /= \|= &&= ??=`                                   |
+| Other              | `?:` (ternary), `typeof`, `in`, `instanceof`, `delete`, `...` |
 
 **Equality**
 
@@ -407,21 +408,21 @@ A string is an immutable sequence of UTF-16 code units, written with `'single'`,
 
 ### Summary
 
-|Method|Purpose|Returns|
-|---|---|---|
-|`length`|Number of UTF-16 units|number|
-|`slice(start, end)`|Substring (supports negatives)|string|
-|`substring(start, end)`|Substring (negatives become 0)|string|
-|`at(-1)`|Character at index (negatives allowed)|string|
-|`indexOf / lastIndexOf`|Position or `-1`|number|
-|`includes / startsWith / endsWith`|Existence checks|boolean|
-|`split(sep)`|Break into array|array|
-|`trim / trimStart / trimEnd`|Remove whitespace|string|
-|`toUpperCase / toLowerCase`|Case change|string|
-|`replace / replaceAll`|Substitute text|string|
-|`padStart / padEnd`|Pad to length|string|
-|`repeat(n)`|Repeat|string|
-|`localeCompare`|Locale-aware compare/sort|number|
+| Method                             | Purpose                                | Returns |
+| ---------------------------------- | -------------------------------------- | ------- |
+| `length`                           | Number of UTF-16 units                 | number  |
+| `slice(start, end)`                | Substring (supports negatives)         | string  |
+| `substring(start, end)`            | Substring (negatives become 0)         | string  |
+| `at(-1)`                           | Character at index (negatives allowed) | string  |
+| `indexOf / lastIndexOf`            | Position or `-1`                       | number  |
+| `includes / startsWith / endsWith` | Existence checks                       | boolean |
+| `split(sep)`                       | Break into array                       | array   |
+| `trim / trimStart / trimEnd`       | Remove whitespace                      | string  |
+| `toUpperCase / toLowerCase`        | Case change                            | string  |
+| `replace / replaceAll`             | Substitute text                        | string  |
+| `padStart / padEnd`                | Pad to length                          | string  |
+| `repeat(n)`                        | Repeat                                 | string  |
+| `localeCompare`                    | Locale-aware compare/sort              | number  |
 
 ```js
 const s = "  Hello World  ";

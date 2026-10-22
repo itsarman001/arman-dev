@@ -6,17 +6,17 @@
 
 ## 0. One-page summary
 
-|Topic|The one thing to remember|
-|---|---|
-|Declaration|`function f() {}` is fully hoisted. You can call it before it appears in the code.|
-|Expression|`const f = function () {}` is **not** callable before its line (`var` → `TypeError`, `let/const` → `ReferenceError`).|
-|Arrow function|Short syntax, **no own `this`, `arguments`, or `prototype`**, can't be used with `new`.|
-|Default params|Used only when the argument is `undefined` (not `null`). Evaluated at call time.|
-|Rest params|`...args` collects the remaining arguments into a **real array**. Must be last.|
-|Return|No `return` → `undefined`. A line break right after `return` returns `undefined`.|
-|Arrow body|`=> { ... }` needs an explicit `return`. `=> expr` returns implicitly. `=> ({ ... })` returns an object.|
-|Arguments|Primitives are copied. For objects, the reference is copied (mutation is visible, reassignment is not).|
-|Scope|Inner functions can read outer variables; outer code can't read inner ones. Scope is decided by **where code is written**.|
+| Topic          | The one thing to remember                                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Declaration    | `function f() {}` is fully hoisted. You can call it before it appears in the code.                                         |
+| Expression     | `const f = function () {}` is **not** callable before its line (`var` → `TypeError`, `let/const` → `ReferenceError`).      |
+| Arrow function | Short syntax, **no own `this`, `arguments`, or `prototype`**, can't be used with `new`.                                    |
+| Default params | Used only when the argument is `undefined` (not `null`). Evaluated at call time.                                           |
+| Rest params    | `...args` collects the remaining arguments into a **real array**. Must be last.                                            |
+| Return         | No `return` → `undefined`. A line break right after `return` returns `undefined`.                                          |
+| Arrow body     | `=> { ... }` needs an explicit `return`. `=> expr` returns implicitly. `=> ({ ... })` returns an object.                   |
+| Arguments      | Primitives are copied. For objects, the reference is copied (mutation is visible, reassignment is not).                    |
+| Scope          | Inner functions can read outer variables; outer code can't read inner ones. Scope is decided by **where code is written**. |
 
 ---
 
@@ -28,7 +28,7 @@ A **function** is a reusable block of code that takes input (parameters), runs s
 
 ### Summary
 
-||Declaration|Expression|
+| |Declaration|Expression|
 |---|---|---|
 |Syntax|`function add(a, b) { return a + b; }`|`const add = function (a, b) { return a + b; };`|
 |Hoisting|Fully hoisted (name + body)|Only the variable is hoisted, not the function|
@@ -111,7 +111,7 @@ const sum = (a, b) => { return a + b; }; // block body: explicit return
 const makeUser = name => ({ name });  // return an object literal: wrap in ( )
 ```
 
-||Regular function|Arrow function|
+| |Regular function|Arrow function|
 |---|---|---|
 |Own `this`|Yes (depends on how it's called)|**No** (uses the surrounding `this`)|
 |Own `arguments`|Yes|**No** (use rest params)|
